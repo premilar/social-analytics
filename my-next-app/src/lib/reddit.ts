@@ -1,7 +1,7 @@
 import Snoowrap from 'snoowrap';
 
 // Define the structure for a Reddit post
-interface RedditPost {
+export interface RedditPost {
   title: string;
   content: string;
   score: number;
@@ -24,7 +24,6 @@ export async function fetchRecentPosts(subreddit: string): Promise<RedditPost[]>
   const oneDayAgo = now - 24 * 60 * 60;
 
   try {
-    console.log('Fetching posts from subreddit:', subreddit);
     const posts = await r.getSubreddit(subreddit).getNew({ limit: 100 });
 
     const recentPosts = posts

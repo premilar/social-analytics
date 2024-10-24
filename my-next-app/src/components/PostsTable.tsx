@@ -7,6 +7,7 @@ interface RedditPost {
   numComments: number;
   createdUTC: number;
   url: string;
+  categories: string[];
 }
 
 interface PostsTableProps {
@@ -43,6 +44,7 @@ const PostsTable: React.FC<PostsTableProps> = ({ posts }) => {
             Date {sortKey === 'createdUTC' && (sortOrder === 'asc' ? '↑' : '↓')}
           </th>
           <th className="py-2">Comments</th>
+          <th className="py-2">Categories</th>
         </tr>
       </thead>
       <tbody>
@@ -54,10 +56,11 @@ const PostsTable: React.FC<PostsTableProps> = ({ posts }) => {
                 {post.title}
               </a>
             </td>
-            <td className="border px-4 py-2">
-              {new Date(post.createdUTC * 1000).toLocaleString()}
-            </td>
+            <td className="border px-4 py-2">{new Date(post.createdUTC * 1000).toLocaleString()}</td>
             <td className="border px-4 py-2">{post.numComments}</td>
+            <td className="border px-4 py-2">
+              {post.categories.length > 0 ? post.categories.join(', ') : 'None'}
+            </td>
           </tr>
         ))}
       </tbody>

@@ -6,8 +6,7 @@ interface SubredditDetailPageProps {
 }
 
 const SubredditDetailPage = ({ params }: SubredditDetailPageProps) => {
-  const resolvedParams = use(params);
-  const { subreddit } = resolvedParams;
+  const { subreddit } = use(params);
 
   return (
     <div className="container mx-auto p-4">
