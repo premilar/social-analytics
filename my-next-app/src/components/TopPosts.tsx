@@ -2,16 +2,7 @@
 
 import React from 'react';
 import PostsTable from './PostsTable';
-
-interface RedditPost {
-  title: string;
-  content: string;
-  score: number;
-  numComments: number;
-  createdUTC: number;
-  url: string;
-  categories: string[];
-}
+import type { RedditPost } from '../types';
 
 interface TopPostsProps {
   posts: RedditPost[];
@@ -24,7 +15,7 @@ const TopPosts: React.FC<TopPostsProps> = ({ posts }) => {
       {posts.length > 0 ? (
         <PostsTable posts={posts} />
       ) : (
-        <p>No recent posts found.</p>
+        <p>No recent posts found. Please check back later.</p>
       )}
     </div>
   );

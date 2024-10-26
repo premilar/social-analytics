@@ -21,7 +21,7 @@ export interface Subreddit {
 }
 
 export interface Post {
-  id?: string;
+  id: string;
   subreddit_id: string;
   reddit_post_id: string;
   title: string;
@@ -30,7 +30,8 @@ export interface Post {
   num_comments: number;
   created_utc: string;
   url: string;
-  fetched_at?: string;
+  fetched_at: string;
+  categories: string[];
 }
 
 export interface Category {

@@ -12,35 +12,26 @@ export async function POST(request: NextRequest) {
   try {
     // Initialize the OpenAI client
     const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-        baseURL: "https://oai.helicone.ai/v1",
-      defaultHeaders: {
-        "Helicone-Auth": `Bearer ${process.env.HELICONE_API_KEY}`,
-      },
+      apiKey: process.env.OPENAI_API_KEY,
     });
 
     const prompt = `
-        You are a helpful assistant that analyzes Reddit posts. Analyze the following Reddit post and categorize it into one or more of the following themes:
+You are a helpful assistant that analyzes Reddit posts. Analyze the following Reddit post and categorize it into one or more of the following themes:
 
+- Solution Requests: Seeking solutions to problems.
+- Pain and Anger: Expressing frustration or anger.
+- Advice Requests: Seeking advice or opinions.
+- Money Talk: Discussing money or finance topics.
 
-        # CATEGORY CRITERIA: """
-        - Solution Requests: Seeking solutions to problems.
-        - Pain and Anger: Expressing frustration or anger.
-        - Advice Requests: Seeking advice or opinions.
-        - Money Talk: Discussing money or finance topics.
-        """
+Provide the categories that the post fits into as a JSON array (e.g., ["Advice Requests", "Money Talk"]), **without any additional text or formatting**.
 
-        # POST DETAILS: """
-        Post Title: "${title}"
-        Post Content: "${content}"
-        """
+Ensure that your response is a valid JSON array and does not include any explanations or extra text.
 
-        Provide the categories that the post fits into as a JSON array (e.g., ["Advice Requests", "Money Talk"]), **without any additional text or formatting**.
+Post Title: "${title}"
+Post Content: "${content}"
 
-        Ensure that your response is a valid JSON array and does not include any explanations or extra text.
-
-        Response:
-        `;
+Response:
+`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
@@ -49,7 +40,7 @@ export async function POST(request: NextRequest) {
       temperature: 0,
     });
 
-    let result = completion.choices[0].message?.content?.trim() || '[]';
+    let result = completion.choices[0].message?.content.trim();
 
     console.log('OpenAI raw response:', result);
 

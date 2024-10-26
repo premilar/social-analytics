@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation'; // Use next/navigation for App Rout
 
 interface SubredditCardProps {
   name: string;
-  description: string;
+  description?: string;
 }
 
 const SubredditCard: React.FC<SubredditCardProps> = ({ name, description }) => {
@@ -20,7 +20,7 @@ const SubredditCard: React.FC<SubredditCardProps> = ({ name, description }) => {
       onClick={handleClick}
     >
       <h2 className="text-xl font-bold">{name}</h2>
-      <p className="text-gray-600">{description}</p>
+      <p className="text-gray-600">{description || 'No description available.'}</p>
     </div>
   );
 };

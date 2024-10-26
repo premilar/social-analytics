@@ -10,13 +10,13 @@ const AddSubredditModal: React.FC<AddSubredditModalProps> = ({ isOpen, onClose, 
   const [subredditUrl, setSubredditUrl] = useState('');
 
   const handleAdd = () => {
-    const subredditName = extractSubredditName(subredditUrl);
+    const subredditName = extractSubredditName(subredditUrl) || subredditUrl.trim();
     if (subredditName) {
       onAddSubreddit(subredditName);
       setSubredditUrl('');
       onClose();
     } else {
-      alert('Please enter a valid subreddit URL.');
+      alert('Please enter a valid subreddit name or URL.');
     }
   };
 

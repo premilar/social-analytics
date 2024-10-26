@@ -1,8 +1,9 @@
 import OpenAI from 'openai';
 require('dotenv').config({ path: '.env.local' });
 
+// Initialize the OpenAI client
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: process.env.OPENAI_API_KEY!,
     baseURL: "https://oai.helicone.ai/v1",
   defaultHeaders: {
     "Helicone-Auth": `Bearer ${process.env.HELICONE_API_KEY}`,

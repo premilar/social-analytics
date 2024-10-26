@@ -22,44 +22,39 @@ const Tabs: React.FC<TabsProps> = ({ subreddit }) => {
   const [activeTab, setActiveTab] = useState<'topPosts' | 'themes'>('topPosts');
   const [posts, setPosts] = useState<RedditPost[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
+      setLoading(true);
       try {
-        // Fetch posts with categories from the API
         const response = await fetch(`/api/redditPosts?subreddit=${subreddit}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setPosts(data);
+        } else {
+          console.error('Error fetching posts:', data.error);
+          setPosts([]);
         }
-        const fetchedPosts: RedditPost[] = await response.json();
-        setPosts(fetchedPosts);
       } catch (error) {
         console.error('Error fetching posts:', error);
-        setError('Failed to fetch posts.');
-      } finally {
-        setLoading(false);
+        setPosts([]);
       }
+      setLoading(false);
     };
 
     fetchPosts();
-  }, [subreddit]);
+  }, [subreddit]); // Re-fetch when subreddit changes
 
   if (loading) {
     return <p>Loading posts...</p>;
-  }
-
-  if (error) {
-    return <p>{error}</p>;
   }
 
   return (
     <>
       <div className="mb-4">
         <button
-          className={`px-4 py-2 ${
-            activeTab === 'topPosts' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
+          className={`px-4 py-2 ${activeTab === 'topPosts' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           onClick={() => setActiveTab('topPosts')}
         >
           Top Posts
