@@ -91,32 +91,48 @@ We are building a Reddit analytics platform that allows users to get analytics o
 
 ```
 my-next-app/
+.
 ├── README.md
+├── components.json
+├── instructions
+│   ├── instructions.md
+│   └── supabasesetup.md
 ├── next-env.d.ts
 ├── next.config.ts
-├── package.json
 ├── package-lock.json
+├── package.json
 ├── postcss.config.mjs
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── src
+│   ├── app
+│   │   ├── [subreddit]
+│   │   ├── api
+│   │   ├── favicon.ico
+│   │   ├── fonts
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── AddSubredditModal.tsx
+│   │   ├── CategoryCard.tsx
+│   │   ├── PostsTable.tsx
+│   │   ├── SidePanel.tsx
+│   │   ├── SubredditCard.tsx
+│   │   ├── Tabs.tsx
+│   │   ├── Themes.tsx
+│   │   ├── TopPosts.tsx
+│   │   └── ui
+│   ├── lib
+│   │   ├── openai.ts
+│   │   └── reddit.ts
+│   └── types.ts
 ├── tailwind.config.ts
-├── tsconfig.json
-├── public/
-│   └── [static assets: SVGs, images]
-├── src/
-    ├── app/
-    │   ├── page.tsx                   // Main page displaying subreddit cards
-    │   └── [subreddit]/
-    │       └── page.tsx               // Subreddit detail page with tabs
-    ├── components/
-    │   ├── SubredditCard.tsx          // Subreddit card component
-    │   ├── AddSubredditModal.tsx      // Modal to add new subreddits
-    │   ├── PostsTable.tsx             // Table to display posts
-    │   ├── CategoryCard.tsx           // Theme category card
-    │   └── SidePanel.tsx              // Side panel for category posts
-    ├── lib/
-    │   ├── reddit.ts                  // Reddit data fetching functions
-    │   └── openai.ts                  // Post analysis functions
-    └── styles/
-        └── globals.css                // Global styles
+└── tsconfig.json
 ```
 
 ## Detailed Specifications

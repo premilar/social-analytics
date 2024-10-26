@@ -8,6 +8,7 @@ export interface RedditPost {
   numComments: number;
   createdUTC: number;
   url: string;
+  categories: string[];
 }
 
 // Create a Snoowrap instance
@@ -35,6 +36,7 @@ export async function fetchRecentPosts(subreddit: string): Promise<RedditPost[]>
         numComments: post.num_comments,
         createdUTC: post.created_utc,
         url: post.url,
+        categories: [],
       }));
 
     return recentPosts;
