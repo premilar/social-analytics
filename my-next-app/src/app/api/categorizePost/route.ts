@@ -40,7 +40,7 @@ Response:
       temperature: 0,
     });
 
-    let result = completion.choices[0].message?.content.trim();
+    let result = completion.choices[0].message?.content?.trim();
 
     console.log('OpenAI raw response:', result);
 

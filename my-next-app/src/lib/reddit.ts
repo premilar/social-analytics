@@ -1,14 +1,5 @@
 import Snoowrap from 'snoowrap';
-
-// Define the structure for a Reddit post
-export interface RedditPost {
-  title: string;
-  content: string;
-  score: number;
-  numComments: number;
-  createdUTC: number;
-  url: string;
-}
+import type { RedditPost } from '../types';
 
 // Create a Snoowrap instance
 const r = new Snoowrap({
@@ -29,12 +20,16 @@ export async function fetchRecentPosts(subreddit: string): Promise<RedditPost[]>
     const recentPosts = posts
       .filter((post) => post.created_utc >= oneDayAgo)
       .map((post) => ({
+        id: post.id,
+        name: post.name,
         title: post.title,
+        author: post.author.name,
         content: post.selftext,
         score: post.score,
         numComments: post.num_comments,
         createdUTC: post.created_utc,
         url: post.url,
+        categories: [],
       }));
 
     return recentPosts;

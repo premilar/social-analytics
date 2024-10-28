@@ -3,6 +3,7 @@ import { supabaseServer } from '../../../lib/supabaseServerClient';
 import { fetchRecentPosts } from '../../../lib/reddit';
 import { categorizePost } from '../../../lib/openai';
 import { Post } from '../../../types';
+import { PostData } from '../../../types'; // Import the PostData interface
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -86,11 +87,17 @@ export async function GET(request: NextRequest) {
       } else {
         // Map data to match the expected structure
         posts = fetchedPosts.map((post: any) => {
-          const categories = post.post_categories?.map((pc: any) => pc.categories.name) || [];
+          // Extract category names from the nested structure
+          const categories = post.post_categories
+            ?.map((pc: any) => pc.categories?.name)
+            .filter((name: string | undefined) => name) || [];
 
           return {
+            id: post.id,
+            name: post.reddit_post_id,
             title: post.title,
             content: post.content,
+            author: post.author,
             score: post.score,
             numComments: post.num_comments,
             createdUTC: new Date(post.created_utc).getTime() / 1000,
@@ -118,19 +125,24 @@ export async function GET(request: NextRequest) {
 // Helper function to fetch from Reddit and store in Supabase
 async function fetchFromRedditAndStore(subredditName: string, subredditId: string) {
   const redditPosts = await fetchRecentPosts(subredditName);
-
-  // Initialize an empty array to collect posts to insert
-  const postsToInsert = [];
+  
+  interface PostToInsertItem {
+    postData: PostData;
+    categories: string[];
+  }
+  // Explicitly type the postsToInsert array
+  const postsToInsert: PostToInsertItem[] = [];
 
   for (const redditPost of redditPosts) {
     // Analyze the post with OpenAI
     const categories = await categorizePost(redditPost.title, redditPost.content);
 
     // Prepare the post data for insertion
-    const postData = {
+    const postData: PostData = {
       subreddit_id: subredditId,
-      reddit_post_id: redditPost.url,
+      reddit_post_id: redditPost.name,
       title: redditPost.title,
+      author: redditPost.author,
       content: redditPost.content,
       score: redditPost.score,
       num_comments: redditPost.numComments,
@@ -142,7 +154,7 @@ async function fetchFromRedditAndStore(subredditName: string, subredditId: strin
     postsToInsert.push({ postData, categories });
   }
 
-  // **Use upsert instead of insert**
+  // Upsert posts into Supabase
   const { data: upsertedPosts, error: upsertPostsError } = await supabaseServer
     .from('posts')
     .upsert(postsToInsert.map((item) => item.postData), {
@@ -155,8 +167,6 @@ async function fetchFromRedditAndStore(subredditName: string, subredditId: strin
     throw new Error('Failed to upsert posts');
   }
 
-  let posts = [];
-
   // Handle categories and post_categories
   for (let i = 0; i < upsertedPosts.length; i++) {
     const post = upsertedPosts[i];
@@ -164,19 +174,14 @@ async function fetchFromRedditAndStore(subredditName: string, subredditId: strin
 
     for (const categoryName of categories) {
       // Ensure the category exists or insert it
-      let { data: category, error: categoryError } = await supabaseServer
+      let { data: category, error: categoryError, status } = await supabaseServer
         .from('categories')
         .select('*')
         .eq('name', categoryName)
         .single();
 
-      if (categoryError && categoryError.code !== 'PGRST116') {
-        console.error('Error fetching category:', categoryError);
-        continue;
-      }
-
-      if (!category) {
-        // Insert new category
+      if (status === 406) {
+        // Category does not exist, insert it
         const { data: newCategory, error: insertCategoryError } = await supabaseServer
           .from('categories')
           .insert({ name: categoryName })
@@ -189,9 +194,12 @@ async function fetchFromRedditAndStore(subredditName: string, subredditId: strin
         }
 
         category = newCategory;
+      } else if (categoryError) {
+        console.error('Error fetching category:', categoryError);
+        continue;
       }
 
-      // **Use upsert for post_categories**
+      // Upsert into post_categories
       const { error: postCategoryError } = await supabaseServer
         .from('post_categories')
         .upsert(
@@ -211,26 +219,29 @@ async function fetchFromRedditAndStore(subredditName: string, subredditId: strin
 
     // Add categories to the post object
     post.categories = categories;
-    posts.push({
+  }
+
+  // Map upsertedPosts to include necessary fields before returning
+  const mappedPosts = upsertedPosts.map((post, index) => {
+    return {
+      id: post.id,
+      name: post.reddit_post_id,          // Ensure 'name' is set
       title: post.title,
       content: post.content,
+      author: post.author,                // Include 'author'
       score: post.score,
       numComments: post.num_comments,
       createdUTC: new Date(post.created_utc).getTime() / 1000,
       url: post.url,
-      categories: categories,
-    });
-  }
+      categories: postsToInsert[index].categories, // Add categories
+    };
+  });
 
   // Update the subreddit's last_updated timestamp
-  const { error: updateSubredditError } = await supabaseServer
+  await supabaseServer
     .from('subreddits')
     .update({ last_updated: new Date().toISOString() })
     .eq('id', subredditId);
 
-  if (updateSubredditError) {
-    console.error('Error updating subreddits last_updated:', updateSubredditError);
-  }
-
-  return posts;
+  return mappedPosts; // Return the mapped posts
 }

@@ -1,10 +1,31 @@
 export interface RedditPost {
+  id: string;
+  name: string;
   title: string;
   content: string;
+  author: string;
   score: number;
   numComments: number;
   createdUTC: number;
   url: string;
+  categories: string[];
+}
+
+export interface PostData {
+  subreddit_id: string;
+  reddit_post_id: string;
+  title: string;
+  author: string;
+  content: string;
+  score: number;
+  num_comments: number;
+  created_utc: string;
+  url: string;
+  fetched_at: string;
+}
+
+export interface PostToInsertItem {
+  postData: PostData;
   categories: string[];
 }
 

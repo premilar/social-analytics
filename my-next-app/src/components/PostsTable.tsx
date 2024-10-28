@@ -1,71 +1,56 @@
-import React, { useState } from 'react';
-
-interface RedditPost {
-  title: string;
-  content: string;
-  score: number;
-  numComments: number;
-  createdUTC: number;
-  url: string;
-  categories: string[];
-}
+import React from 'react'
+import type { RedditPost } from '../types'
+import { Badge } from '@/components/ui/badge'
+import { ArrowUp, MessageCircle } from 'lucide-react'
 
 interface PostsTableProps {
-  posts: RedditPost[];
+  posts: RedditPost[]
 }
 
 const PostsTable: React.FC<PostsTableProps> = ({ posts }) => {
-  const [sortKey, setSortKey] = useState<'score' | 'createdUTC'>('score');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-
-  const sortedPosts = [...posts].sort((a, b) => {
-    const order = sortOrder === 'asc' ? 1 : -1;
-    return (a[sortKey] - b[sortKey]) * order;
-  });
-
-  const handleSort = (key: 'score' | 'createdUTC') => {
-    if (sortKey === key) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortKey(key);
-      setSortOrder('desc');
-    }
-  };
-
+  // Check for any state hooks or state updates here
   return (
-    <table className="min-w-full bg-white">
-      <thead>
-        <tr>
-          <th className="py-2 cursor-pointer" onClick={() => handleSort('score')}>
-            Score {sortKey === 'score' && (sortOrder === 'asc' ? '↑' : '↓')}
-          </th>
-          <th className="py-2">Title</th>
-          <th className="py-2 cursor-pointer" onClick={() => handleSort('createdUTC')}>
-            Date {sortKey === 'createdUTC' && (sortOrder === 'asc' ? '↑' : '↓')}
-          </th>
-          <th className="py-2">Comments</th>
-          <th className="py-2">Categories</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortedPosts.map((post) => (
-          <tr key={post.url}>
-            <td className="border px-4 py-2">{post.score}</td>
-            <td className="border px-4 py-2">
-              <a href={post.url} target="_blank" rel="noopener noreferrer">
-                {post.title}
-              </a>
-            </td>
-            <td className="border px-4 py-2">{new Date(post.createdUTC * 1000).toLocaleString()}</td>
-            <td className="border px-4 py-2">{post.numComments}</td>
-            <td className="border px-4 py-2">
-              {post.categories.length > 0 ? post.categories.join(', ') : 'None'}
-            </td>
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-gray-800">
+        <thead>
+          <tr>
+            <th className="py-3 px-4 text-left text-gray-300">Title</th>
+            <th className="py-3 px-4 text-center text-gray-300">Score</th>
+            <th className="py-3 px-4 text-center text-gray-300">Comments</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
+        </thead>
+        <tbody>
+          {posts.map((post) => (
+            <tr key={post.name} className="border-t border-gray-700">
+              <td className="py-3 px-4 text-white">
+                <a
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  {post.title}
+                </a>
+                <div className="mt-1 text-sm text-gray-400">Posted by u/{post.author}</div>
+              </td>
+              <td className="py-3 px-4 text-center text-gray-200">
+                <div className="flex items-center justify-center space-x-1">
+                  <ArrowUp className="w-4 h-4 text-red-500" />
+                  <span>{post.score}</span>
+                </div>
+              </td>
+              <td className="py-3 px-4 text-center text-gray-200">
+                <div className="flex items-center justify-center space-x-1">
+                  <MessageCircle className="w-4 h-4 text-blue-500" />
+                  <span>{post.numComments}</span>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
-export default PostsTable;
+export default PostsTable
